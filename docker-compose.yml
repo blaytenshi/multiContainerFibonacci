@@ -1,0 +1,52 @@
+version: '3'
+services:
+  postgres: # name of the postgres service
+    image: 'postgres:latest' # tells docker to go find the latest version of the postgres docker image
+  redis:
+    image: 'redis:latest'
+  nginx:
+    # restart policy set to always because nginx is doing the routing for the entire web application
+    # it is critical and so we need it restarted no matter what
+    restart: always
+    build:
+      dockerfile: Dockerfile.dev # because this is a custom nginx file, we need to use the dockerfile.dev from here not from an image
+      context: ./nginx
+    ports:
+      - '3050:80'
+  api:
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./server # look in this folder to see where to build this image and where to find the Dockerfile.dev. You don't need to put it between quotes.
+    volumes:
+      - /app/node_modules
+      - ./server:/app # copy everything inside the /server folder on this machine into the /app folder inside the container
+    environment:
+      # there are two ways to define env variables, with an equals or without.
+      # By using an equals, you can assign a value to it inside the container.
+      # If you don't use an equals (just giving the name) the name and the value will be copied from your computer.
+      - REDIS_HOST=redis # don't need to specify the host IP, just the name of the service works just fine
+      - REDIS_PORT=6379
+      - PGUSER=postgres
+      - PGHOST=postgres # same as redis_host env
+      - PGDATABASE=postgres # default database
+      - PGPASSWORD=postgres_password # default postgres password
+      - PGPORT=5432
+  client:
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./client
+    volumes:
+      - /app/node_modules
+      - ./client:/app
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+  worker:
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./worker
+    volumes:
+      - /app/node_modules
+      - ./worker:/app
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379

@@ -21,11 +21,11 @@ class Fib extends Component {
     async fetchIndexes() {
         const seenIndexes = await axios.get('/api/values/all');
         this.setState({
-            values: values.data
-        })
+            seenIndexes: seenIndexes.data
+        });
     }
 
-    handleSubmit = async (event) => {
+    handleSubmit = async event => {
         event.preventDefault();
 
         await axios.post('/api/values', {
@@ -46,7 +46,7 @@ class Fib extends Component {
                 <div key={key}>
                     For index {key} I calculated {this.state.values[key]}
                 </div>
-            )
+            );
         }
 
         return entries;

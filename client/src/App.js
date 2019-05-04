@@ -9,14 +9,15 @@ function App() {
   return (
       <Router>
           <div className="App">
-              <header className="App-header">
-                  <img src={logo} className="App-logo" alt="logo" />
+              <header>
                   <Link to="/">Home</Link>
+                  <Link to="/fibasdf">Fib</Link>
                   <Link to="/otherPage">Other Page</Link>
+                  <Link to="/myPage">My Page</Link>
               </header>
               <div>
-                  <Route exact path="/" compnent={Fib} />
-                  <Route path="/otherPage" component={OtherPage} />>
+                  <Route exact path="/" component={Fib} />
+                  <Route path="/otherPage" component={OtherPage} />
               </div>
           </div>
       </Router>
