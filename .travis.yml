@@ -16,7 +16,7 @@ before_install:
 script:
   # we've added a -e (environ var) to specify to create-react-app that this is testing on CI servers
   # so it knows not to give the users options after the tests are run
-  - docker run -e CI=true jimmygjtang/multi-container-fib-client npm test
+  - docker run -e CI=true jimmygjtang/multi-container-fib-client-test npm test
 
 after_success:
   - docker build -t jimmygjtang/multi-container-fib-client ./client
