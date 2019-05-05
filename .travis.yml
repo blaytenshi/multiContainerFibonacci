@@ -1,0 +1,35 @@
+sudo: required
+services:
+  - docker
+
+# here we're running the tests before we do a final build to deploy
+before_install:
+  # here we're building and tagging an image to run tests in the scripts section
+  # we need to specify the Dockerfile.dev file in order to run the tests because the production
+  # Dockerfile doesn't run tests. Don't forget to specify the build context of ./client
+
+  # if you need to add more tests for other components in this web application, you simply need to
+  # build their dev images here and run their respective npm test commands in the scripts section
+  - docker build -t jimmygjtang/multi-container-fib-client-test -f ./client/Dockerfile.dev ./client
+
+# after we've created the test image we will run it to make sure the tests pass!
+script:
+  # we've added a -e (environ var) to specify to create-react-app that this is testing on CI servers
+  # so it knows not to give the users options after the tests are run
+  - docker run -e CI=true jimmygjtang/multi-container-fib-client npm test
+
+after_success:
+  - docker build -t jimmygjtang/multi-container-fib-client ./client
+  - docker build -t jimmygjtang/multi-container-fib-nginx ./nginx
+  - docker build -t jimmygjtang/multi-container-fib-server ./server
+  - docker build -t jimmygjtang/multi-container-fib-worker ./worker
+  # log into dockerCLI
+  # we do this by 'piping' (the | char) the output of echo into the docker login command
+  # the docker login command taks the password as an stdin and attempt to login along with your DOCKER_ID
+  # the DOCKER_PASSWORD and DOCKER_ID have been saved onto this specific travisCI project as env variables
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  # after we've logged in, we can take the images we've built and tagged and push them up to docker-hub (like github but for docker images)
+  - docker push jimmygjtang/multi-container-fib-client
+  - docker push jimmygjtang/multi-container-fib-nginx
+  - docker push jimmygjtang/multi-container-fib-server
+  - docker push jimmygjtang/multi-container-fib-worker
