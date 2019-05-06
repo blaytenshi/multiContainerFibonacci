@@ -33,3 +33,16 @@ after_success:
   - docker push jimmygjtang/multi-container-fib-nginx
   - docker push jimmygjtang/multi-container-fib-server
   - docker push jimmygjtang/multi-container-fib-worker
+
+deploy:
+  provider: elasticbeanstalk
+  region: us-east-2
+  app: multi-container-fibonacci
+  env: MultiContainerFibonacci-env
+  bucket_name: elasticbeanstalk-us-east-2-110555950416
+  bucket_path: multi-container-fibonacci
+  on:
+    branch: master
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key:
+    secure: $AWS_SECRET_KEY
